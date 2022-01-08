@@ -1,11 +1,13 @@
 import { NextFunction, Request, Response, Router } from "express";
+import userRepository from "../repositories/user.repository";
 
 
 const userRouter =  Router()
 
 
-userRouter.get("/users", (req: Request, res: Response, next: NextFunction) => {
-    const users = [{name: "Gustavo"}]
+userRouter.get("/users", async (req: Request, res: Response, next: NextFunction) => {
+    
+    const users = await userRepository.findAllUsers()
     res.send(users)
 })
 
