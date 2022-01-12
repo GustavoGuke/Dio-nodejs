@@ -1,11 +1,11 @@
 // Querys feitas ao banco
-import DatabaseError  from "../models/errors/database.error.model";
+import DatabaseError from "../models/errors/database.error.model";
 import db from "../db";
 import User from "../models/user.model";
 
 class UserRepository {
 
-    
+
     async findAllUsers(): Promise<User[]> {
 
         const query = `
@@ -25,12 +25,12 @@ class UserRepository {
             const values = [uuid]
             const { rows } = await db.query<User>(query, values)
             const [user] = rows
-    
+
             return user
-            
+
         } catch (error) {
-          throw new DatabaseError("Verify ID", error)   
-          
+            throw new DatabaseError("Verify ID", error)
+
         }
     }
 
@@ -62,10 +62,30 @@ class UserRepository {
 
     }
 
-    async remove(uuid: string): Promise<void>{
+    async remove(uuid: string): Promise<void> {
         const query = `DELETE FROM application_user WHERE uuid = $1`;
         const values = [uuid]
         await db.query(query, values)
+    }
+
+    async findByUsernameAndPassword(username: string, password: string): Promise<User | null > {
+
+        try {
+            
+            const query = `
+                SELECT uuid, username
+                FROM application_user
+                WHERE username = $1
+                AND password = crypt($2, 'my_salt')
+            `
+            const values = [username, password]
+            const { rows } = await db.query<User>(query, values)
+            const [user] = rows
+            return user || null
+        } catch (error) {
+            throw new DatabaseError("Error in username or password", error)
+        }
+
     }
 }
 
