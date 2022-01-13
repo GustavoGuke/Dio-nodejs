@@ -1,33 +1,25 @@
 import { NextFunction, Request, Response, Router } from "express";
 import ForbiddenError from "../models/errors/forbidden.error.model";
 import userRepository from "../repositories/user.repository";
+import Jwt from "jsonwebtoken";
+import { StatusCodes } from "http-status-codes";
+import authenticationMiddleware from "../middlewares/authentication.middleware";
 
 const authorizationRouter = Router()
 
-authorizationRouter.post("/token", async (req: Request, res: Response, next: NextFunction) => {
+authorizationRouter.post("/token",authenticationMiddleware, async (req: Request, res: Response, next: NextFunction) => {
 
     try {
-        const authorizationHeader = req.headers["authorization"]
-        if (!authorizationHeader) {
-            throw new ForbiddenError("Credenciais não informadas")
+        const {user} = req
+        if(!user){
+            throw new ForbiddenError("user or password not found")
         }
+        const jwtPayload = { username: user.username }
+        const jwtOptions = { subject: user?.uuid }
+        const secretKey = "my_secret_key"
 
-        const [type, token] = authorizationHeader.split(" ")
-        if(type !== "Basic" || !token){
-            throw new ForbiddenError("Credenciais não informadas")
-        }
-
-        const tokenContent = Buffer.from(token, "base64").toString("utf-8")
-        const [username, password] = tokenContent.split(":")
-
-        if(!username || !password){
-            throw new ForbiddenError("Credenciais não preenchidas")
-        }
-
-        const user = await userRepository.findByUsernameAndPassword(username, password)
-
-        console.log(user)
-        res.send()
+        const jwt = Jwt.sign(jwtPayload, secretKey, jwtOptions)
+        res.status(StatusCodes.OK).json({ token: jwt })
 
     } catch (error) {
         next(error)
