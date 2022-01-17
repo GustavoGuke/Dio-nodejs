@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response, Router } from "express";
 import ForbiddenError from "../models/errors/forbidden.error.model";
-import userRepository from "../repositories/user.repository";
 import Jwt from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
 import authenticationMiddleware from "../middlewares/authentication.middleware";
+import bearerTokenMiddleware from "../middlewares/bearerToken.middleware";
 
 const authorizationRouter = Router()
 
-authorizationRouter.post("/token",authenticationMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+authorizationRouter.post("/token",authenticationMiddleware,(req: Request, res: Response, next: NextFunction) => {
 
     try {
         const {user} = req
@@ -24,5 +24,9 @@ authorizationRouter.post("/token",authenticationMiddleware, async (req: Request,
     } catch (error) {
         next(error)
     }
+})
+authorizationRouter.post("/token/validate",bearerTokenMiddleware,(req: Request, res: Response, next: NextFunction) =>{
+    res.sendStatus(StatusCodes.OK)
+
 })
 export default authorizationRouter

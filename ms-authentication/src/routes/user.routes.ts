@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
+import bearerTokenMiddleware from "../middlewares/bearerToken.middleware";
 
 import userRepository from "../repositories/user.repository";
 

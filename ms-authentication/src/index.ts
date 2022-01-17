@@ -9,8 +9,9 @@ const app = express()
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
-app.use(bearerTokenMiddleware,userRouter)
 app.use(authorizationRouter)
+app.use(bearerTokenMiddleware)
+app.use(userRouter)
 app.use(errorHandler)
 app.get("/", (req, res) => {
     res.sendStatus(StatusCodes.OK)
